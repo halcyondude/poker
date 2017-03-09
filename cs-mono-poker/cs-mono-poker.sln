@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.0.0
+MinimumVisualStudioVersion = 10.0.0.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokerhand", "pokerhand/pokerhand.csproj", "{A8508F0A-24D3-4F68-BF30-362A3FD19361}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokerutils", "pokerutils\pokerutils.csproj", "{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8508F0A-24D3-4F68-BF30-362A3FD19361}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8508F0A-24D3-4F68-BF30-362A3FD19361}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8508F0A-24D3-4F68-BF30-362A3FD19361}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8508F0A-24D3-4F68-BF30-362A3FD19361}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
