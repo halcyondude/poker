@@ -22,6 +22,4 @@ When a category involves less than 5 cards, the next highest cards are added as 
 
 2. Write a function that takes 2 or more 5-card hands and determines the winner.
 
-Some poker variations use more than 5 cards per player, and the player chooses the best subset of 5 cards to play.
-
-3. Write a function that takes 5 or more cards and returns the best 5-card hand that can be made with those cards.  For example, the input [“3H”, “7S”, “3S”, “QD”, “AH”, “3D”, “4S”] should return [“3H”, “3S”, “3D”, “AH”, “QD”], which is a 3-of-a-kind with 3s, ace and queen kickers.
+3. Some poker variations use more than 5 cards per player, and the player chooses the best subset of 5 cards to play.  Write a function that takes 5 or more cards and returns the best 5-card hand that can be made with those cards.  For example, the input [“3H”, “7S”, “3S”, “QD”, “AH”, “3D”, “4S”] should return [“3H”, “3S”, “3D”, “AH”, “QD”], which is a 3-of-a-kind with 3s, ace and queen kickers.
