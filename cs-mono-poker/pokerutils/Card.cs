@@ -7,7 +7,6 @@ using System.Linq.Expressions;
 namespace pokerutils
 {
     // note: indexing these zero-based in case we need array indices later, and for rank, comparison/less predicate
-
     public enum Suits
     {
         HEART   = 0,

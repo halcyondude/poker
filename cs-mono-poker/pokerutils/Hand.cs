@@ -20,19 +20,30 @@ namespace pokerutils
         {
         }
 
+        // lazy init
+        private string _displayString;
+
         public override string ToString()
         {
-            // StringBuilder allows for fast concat without realloc drama since strings are immutable in C#.
-            // the "+4" allows for 4 tens worst case without realloc.  really this is OCD as the default
+            //
+            // StringBuilder allows for fast concat without realloc drama. Strings are immutable in C#.
+            // the "+ 4" allows for 4 tens worst case without realloc.  really this is OCD as the default
             // buffer size is much larger, but this a demonstration of ability to think/code right?  {smile}
             //
             // Were the buffer sizes larger it would matter :)
-            StringBuilder sb = new StringBuilder((this.Count * 2) + 4);
-            foreach (Card c in this)
+            //
+            if (String.IsNullOrEmpty(_displayString))
             {
-                sb.Append(c.ToString());
+                StringBuilder sb = new StringBuilder((this.Count * 2) + 4);
+                foreach (Card c in this)
+                {
+                    sb.Append(c.ToString());
+                    sb.Append(" ");
+                }
+                _displayString = sb.ToString();
             }
-            return sb.ToString();
+
+            return _displayString;
         }
     }
 }
