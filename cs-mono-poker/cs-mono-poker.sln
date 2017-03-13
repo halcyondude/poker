@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokerhand", "pokerhand/poke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokerutils", "pokerutils\pokerutils.csproj", "{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "pokerutils-test", "pokerutils-test\pokerutils-test.csproj", "{321C7A25-D01B-40F4-B61B-EE59F5AF3934}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3F9D9FC-C57F-4902-B880-CA6882DD59C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{321C7A25-D01B-40F4-B61B-EE59F5AF3934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{321C7A25-D01B-40F4-B61B-EE59F5AF3934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{321C7A25-D01B-40F4-B61B-EE59F5AF3934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{321C7A25-D01B-40F4-B61B-EE59F5AF3934}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace pokerutils
 {
@@ -34,11 +35,9 @@ namespace pokerutils
         {
             try
             {
-                Console.WriteLine(Environment.NewLine + "Testing Card( " + input + ")");
-
+                Console.Write("Testing Card( " + input + " )");
                 Card card = new Card(input);
-
-                Console.WriteLine(" --> " + card.ToString());
+                Console.Write(" --> " + card.ToString() + Environment.NewLine);
             }
             catch (Exception e)
             {
@@ -125,6 +124,31 @@ namespace pokerutils
                 Console.WriteLine(c.ToStringDebug());
             }
 
+        }
+
+        public void PrototypeUnicode()
+        {
+            Console.Write("Testing Unicode Card: {0}\n", "\U0001F0A1");
+
+            int card_base = 0x1F0A0;
+            int card_suffix = 1;
+
+            int card_combined = card_base + card_suffix;
+
+            int hrm = 0x1F0A1;
+            char c = (char)hrm ;
+            Console.WriteLine("simple cast: {0}", c);
+
+            byte[] byteArray = BitConverter.GetBytes(card_combined);
+
+            var unicodeString = Encoding.Unicode.GetString(byteArray);
+            Console.WriteLine("BitConverter to the rescue! {0}", unicodeString);
+
+            Decoder d = Encoding.Unicode.GetDecoder();
+            char[] resultCharArray = new char[2];
+
+            var takeTwo = d.GetChars(byteArray, 0, byteArray.Length, resultCharArray, 0);
+            Console.WriteLine("Take2: {0}", resultCharArray.ToString());
         }
 
     }

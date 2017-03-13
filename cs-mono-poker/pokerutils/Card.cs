@@ -38,7 +38,9 @@ namespace pokerutils
 
         private SuitInfo _suitInfo;
         private RankInfo _rankInfo;
-        private char _cardUnicodeDisplay;
+
+        // the single char glyph from unicode 6.0
+        private char _cardUnicodeDisplay; // TODO: not working yet (on Mono at least)
 
         // public properties
         public Suits suit { get; private set; }
@@ -75,14 +77,14 @@ namespace pokerutils
 
         //
         // while there are peephole optimizations that could be done here (e.g. clever parsing out of 10, followed
-        // by static ASCII array lookup table), using a container that logically models the contents has merit.  We'll
+        // by static ASCII array lookup table), using a container that logically models the contents has merit.  We're
         // generally parsing the cards from input once, then using them.  If we needed to support chomping massive amounts
-        // of input to test variations might make sense to tweak this but not addressing presently
+        // of input to test variations might make sense to tweak this but not addressing presently.
 
         //
         // For example if we need to improve this to allow for concurrent/locked access
-        // it's just a type swap.  Since this is static it'll be init'd just once and share memory with other instances
-        // of the card class
+        // it's just a type swap.  Since the lookup dict's are static they will be init'd just once and share
+        // memory with other instances of the card class
         //
         // If the requirements change (for input parsing) this makes it easy to maintain.  Clear > Clever
         //
@@ -126,9 +128,9 @@ namespace pokerutils
             _rankInfo = _dictPrettyRank[rank];
 
             // BOO - Mono seems to have some issues with Unicode 6.0
-            // TODO: sort this because it would be cool to have unicode cards for display purposes.
+            // TODO: would be cool to have unicode cards for display purposes.
             // int unicodeCardValue = _suitInfo.UnicodeCardSuitBase + _rankInfo.UnicodeCardRankSuffix;
-            // _cardUnicodeDisplay = Convert.ToChar(unicodeCardValue);
+            // _cardUnicodeDisplay = Convert.ToChar(unicodeCardValue); // TODO: this throws exception at runtime, char out of bounds
 
         }
 
@@ -136,7 +138,8 @@ namespace pokerutils
         public override string ToString()
         {
             // TODO wire in pretty unicode if we can get it sorted.
-            return _suitInfo.UnicodeDarkSuit + " " + _rankInfo.Display;
+            // ♣A ♠K ♥Q ♦J
+            return _suitInfo.UnicodeDarkSuit + _rankInfo.Display;
         }
 
         public string ToStringDebug()
@@ -189,9 +192,9 @@ namespace pokerutils
         {
             public SuitInfo(string display, char unicodeDarkSuit, char unicodeWhiteSuit, int unicodeCardSuiteBase)
             {
-                this.Display = display;
-                this.UnicodeDarkSuit = unicodeDarkSuit;
-                this.UnicodeWhiteSuit = unicodeWhiteSuit;
+                this.Display             = display;
+                this.UnicodeDarkSuit     = unicodeDarkSuit;
+                this.UnicodeWhiteSuit    = unicodeWhiteSuit;
                 this.UnicodeCardSuitBase = unicodeCardSuiteBase;
             }
 

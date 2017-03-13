@@ -33,6 +33,7 @@ namespace pokerhand
             log("------------------------------------");
             tc.TestPrettyPrint();
 
+            tc.PrototypeUnicode();
 
         }
     }
