@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace pokerutils
 {
@@ -49,22 +50,26 @@ namespace pokerutils
 
         public override string ToString()
         {
-            // TODO: IMPLEMENT ME! (EvalHandResult.ToString()
-            return base.ToString();
+            return "ImplementMe!";
         }
     };
 
-    //
-    // there is a bit of duplication in this class, for $reasons (bulk/batch hand eval)
-    //
-    public class HandEvaluator
+    // so we can compare/contrast different eval strategies easily
+    public interface IEvaluateHand
     {
+        EvalHandResult Evaluate(Hand hand);
+    }
 
-
+    //
+    // note: no real use of class members.  Interested parties are fond of functional programming
+    //       goal := portable
+    //
+    public class EvaluateHandProceduralSinglePass : IEvaluateHand
+    {
         //
         // note: heavy use of asserts as this is being written in a hurry
         //
-        public static EvalHandResult EvalHandSinglePass(Hand hand)
+        public EvalHandResult Evaluate(Hand hand)
         {
             // will be set to false by hand traversal as we eval if suits don't match / flush
             bool isFlush = true;
@@ -279,7 +284,7 @@ namespace pokerutils
     }
 
     //
-    // holding area for static helper funcs that don't have a home yet
+    // holding area for static helper funcs that don't have a home yet and/or might never see the light of day
     //
     public class HandEvaluatorMiscUtils
     {
