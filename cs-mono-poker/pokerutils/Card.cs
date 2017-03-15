@@ -45,6 +45,9 @@ namespace pokerutils
         public Suits suit { get; private set; }
         public Ranks rank { get; private set; }
 
+        public string PrettySuit { get; private set; }
+        public string PrettyRank { get; private set; }
+
         // disallow default ctor
         private Card()
         {
@@ -129,7 +132,10 @@ namespace pokerutils
             // BOO - Mono seems to have some issues with Unicode 6.0, dumping the actual char works
             // TODO: would be cool to have unicode cards for display purposes.
             uint unicodeCardValue = _suitInfo.UnicodeCardSuitBase | _rankInfo.UnicodeCardRankSuffix;
-             _cardUnicodeDisplay = (char)unicodeCardValue; // TODO: this throws exception at runtime, char out of bounds
+            //_cardUnicodeDisplay = (char)unicodeCardValue; // TODO: this throws exception at runtime, char out of bounds
+
+            PrettyRank = _rankInfo.Display;
+            PrettySuit = _suitInfo.Display;
 
         }
 
@@ -154,11 +160,11 @@ namespace pokerutils
             return String.Format("{0,7} : {1} ", suit, rank);
         }
 
-    #region private_static_data
-
-        //https://en.wikipedia.org/wiki/Playing_cards_in_Unicode
-
-        private static readonly Dictionary<string, Ranks> _dictInputToRank = new Dictionary<string, Ranks>
+    #region static_data
+        //
+        // making these public as we might need them later for printing elsewhere.
+        //
+        public static readonly Dictionary<string, Ranks> _dictInputToRank = new Dictionary<string, Ranks>
         {
             {"2", Ranks.TWO},
             {"3", Ranks.THREE},
@@ -175,7 +181,7 @@ namespace pokerutils
             {"A", Ranks.ACE},
         };
 
-        private static readonly Dictionary<string, Suits> _dictInputToSuit = new Dictionary<string, Suits>
+        public static readonly Dictionary<string, Suits> _dictInputToSuit = new Dictionary<string, Suits>
         {
             {"H", Suits.HEART},
             {"D", Suits.DIAMOND},
@@ -187,7 +193,7 @@ namespace pokerutils
         //
         // for pretty printing: https://en.wikipedia.org/wiki/Playing_cards_in_Unicode
         //
-        private struct SuitInfo
+        public struct SuitInfo
         {
             public SuitInfo(string display, char unicodeDarkSuit, char unicodeWhiteSuit, uint unicodeCardSuiteBase)
             {
@@ -203,7 +209,7 @@ namespace pokerutils
             public uint UnicodeCardSuitBase;
         };
 
-        private static readonly Dictionary<Suits, SuitInfo> _dictPrettySuit = new Dictionary<Suits, SuitInfo>()
+        public static readonly Dictionary<Suits, SuitInfo> _dictPrettySuit = new Dictionary<Suits, SuitInfo>()
         {
             {Suits.SPADE,   new SuitInfo("S", '\u2660', '\u2664', 0x1F0A0)},
             {Suits.HEART,   new SuitInfo("H", '\u2665', '\u2661', 0x1F0B0)},
@@ -211,7 +217,7 @@ namespace pokerutils
             {Suits.CLUB,    new SuitInfo("C", '\u2663', '\u2667', 0x1F0D0)},
         };
 
-        private struct RankInfo
+        public struct RankInfo
         {
             public RankInfo(string display, uint unicodeCardRankSuffix)
             {
@@ -223,7 +229,7 @@ namespace pokerutils
             public uint UnicodeCardRankSuffix;
         };
 
-        private static readonly Dictionary<Ranks, RankInfo> _dictPrettyRank = new Dictionary<Ranks, RankInfo>()
+        public static readonly Dictionary<Ranks, RankInfo> _dictPrettyRank = new Dictionary<Ranks, RankInfo>()
         {
             {Ranks.TWO,   new RankInfo("2", 0x2)},
             {Ranks.THREE, new RankInfo("3", 0x3)},

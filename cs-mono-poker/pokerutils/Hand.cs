@@ -52,9 +52,6 @@ namespace pokerutils
             return retStringArray;
         }
 
-
-        // lazy init
-        private string _displayString;
         public override string ToString()
         {
             //
@@ -64,18 +61,11 @@ namespace pokerutils
             //
             // Were the buffer sizes larger it (w||c)ould matter...
             //
-            if (String.IsNullOrEmpty(_displayString))
-            {
-                StringBuilder sb = new StringBuilder((this.Count * 2) + 4);
-                foreach (Card c in this)
-                {
-                    sb.Append(c.ToString());
-                    sb.Append(" ");
-                }
-                _displayString = sb.ToString();
-            }
+            StringBuilder sb = new StringBuilder((this.Count * 2) + 4);
+            foreach (Card c in this)
+                sb.AppendFormat("{0,-3} ", c);
 
-            return _displayString;
+            return sb.ToString();
         }
     }
 }

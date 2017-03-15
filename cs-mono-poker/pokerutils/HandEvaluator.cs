@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace pokerutils
 {
@@ -34,15 +35,7 @@ namespace pokerutils
     //
     public struct EvalHandResult
     {
-        // TODO: we probably don't need this ctor
-        public EvalHandResult(HandCategories categoryIn, Ranks rankHighIn, Ranks rankLowIn, Ranks[] kickersIn)
-        {
-            category = categoryIn;
-            rankHigh = rankHighIn;
-            rankLow  = rankLowIn;
-            kickers  = kickersIn;
-        }
-
+        public Hand           hand;
         public HandCategories category; // highest category that applies
         public Ranks          rankHigh; // see above
         public Ranks          rankLow;  // see above
@@ -50,8 +43,74 @@ namespace pokerutils
 
         public override string ToString()
         {
-            return "ImplementMe!";
+            StringBuilder sb = new StringBuilder();
+
+            // first dump the hand
+            sb.AppendFormat("{0}:= ", hand);
+
+            switch (category)
+            {
+                case HandCategories.FIVE_OF_KIND:
+                    throw new NotImplementedException("Error: 5 of a kind is not yet implemented");
+                    break;
+
+                case HandCategories.STRAIGHT_FLUSH:
+                    sb.AppendFormat("Straight Flush, High: {0}", pretty(rankHigh));
+                    break;
+
+                case HandCategories.FOUR_OF_KIND:
+                    sb.AppendFormat("4 of a kind ({0}'s), Kicker: {1}", pretty(rankHigh), pretty(kickers[0]));
+                    break;
+
+                case HandCategories.FULL_HOUSE:
+                    sb.AppendFormat("Full House, (3*{0}'s, 2*{1}'s)", pretty(rankHigh), pretty(rankLow));
+                    break;
+
+                case HandCategories.FLUSH:
+                    sb.Append("Flush, Ordered Ranks: ");
+                    foreach (Ranks r in kickers)
+                        sb.AppendFormat("{0} ", pretty(r));
+                    break;
+
+                case HandCategories.STRAIGHT:
+                    sb.AppendFormat("Straight, High: {0}", pretty(rankHigh));
+                    break;
+
+                case HandCategories.THREE_OF_KIND:
+                    sb.AppendFormat("3 of a kind ({0}'s), Kickers: ", pretty(rankHigh));
+                    foreach (Ranks r in kickers)
+                        sb.AppendFormat("{0} ", pretty(r));
+                    break;
+
+                case HandCategories.TWO_OF_KIND_2X:
+                    sb.AppendFormat("2 pairs, ({0}'s and {1}'s), Kicker: {2}", pretty(rankHigh), pretty(rankLow), pretty(kickers[0]));
+                    break;
+
+                case HandCategories.TWO_OF_KIND:
+                    sb.AppendFormat("2 of a kind ({0}'s), Kickers: ", pretty(rankHigh));
+                    foreach (Ranks r in kickers)
+                        sb.AppendFormat("{0} ", pretty(r));
+                    break;
+
+                case HandCategories.HIGH_CARD:
+                    sb.Append("High Card (sad hand).  Just for kickers: ");
+                    foreach (Ranks r in kickers)
+                        sb.AppendFormat("{0} ", pretty(r));
+                    break;
+
+                default:
+                    throw new InvalidEnumArgumentException("Error: new type of hand is not yet supported");
+            }
+
+            return sb.ToString();
         }
+
+        // TODO: this is less than ideal, but better than carrying info thru core eval code
+        private string pretty(Ranks r)
+        {
+            return Card._dictPrettyRank[r].Display;
+        }
+
     };
 
     // so we can compare/contrast different eval strategies easily
@@ -107,6 +166,7 @@ namespace pokerutils
 
             // at this point we know if we have a straight, flush, and a histogram of cards w/ ranks.  Woot.
             EvalHandResult ehr = new EvalHandResult();
+            ehr.hand = hand;
 
             // TODO: if we were plowing through thousands+ of hands looking for winners, this is fast to compute, and would fast-cull losers
             if (isStraight && isFlush)
