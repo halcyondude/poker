@@ -29,54 +29,62 @@ namespace pokerutils_test
         [Test]
         public void TestEvalHandSinglePass()
         {
+            IEvaluateHand evaluateHand = new EvaluateHandProceduralSinglePass();
+            TestHandVariants(evaluateHand);
+        }
+
+        private void TestHandVariants(IEvaluateHand evaluateHand)
+        {
+            if(null == evaluateHand)
+                throw new ArgumentNullException("evaluateHand", "**cough** AHEM....null intf passed into test method");
+
             EvalHandResult ehr;
 
-            // 5 of kind (4 of kind + wild)
+            // TODO: automate validation of kickers as well
 
             string[] saStraightFlush = {"JC", "10C", "9C", "8C", "7C"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saStraightFlush ));
+            ehr = evaluateHand.Evaluate(new Hand(saStraightFlush ));
             Assert.AreEqual(HandCategories.STRAIGHT_FLUSH, ehr.category);
 
             // 4 of kind
             string[] saFourOfKind = {"5C", "5D", "5H", "5S", "2D"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saFourOfKind ));
+            ehr = evaluateHand.Evaluate(new Hand(saFourOfKind ));
             Assert.AreEqual(HandCategories.FOUR_OF_KIND, ehr.category);
 
             // full house
             string[] saFullHouse = {"6S", "6H", "6D", "KS", "KH"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saFullHouse));
+            ehr = evaluateHand.Evaluate(new Hand(saFullHouse));
             Assert.AreEqual(HandCategories.FULL_HOUSE, ehr.category);
 
             // flush
             string[] saFlush = {"JD", "9D", "8D", "4D", "3D"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saFlush));
+            ehr = evaluateHand.Evaluate(new Hand(saFlush));
             Assert.AreEqual(HandCategories.FLUSH, ehr.category);
 
             // straight
             string[] saStraight = {"10D", "9S", "8H", "7D", "6C"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saStraight ));
+            ehr = evaluateHand.Evaluate(new Hand(saStraight ));
             Assert.AreEqual(HandCategories.STRAIGHT, ehr.category);
 
             // 3 of kind
             string[] saThreeOfKind = {"QC", "QS", "QH", "9H", "2S"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saThreeOfKind ));
+            ehr = evaluateHand.Evaluate(new Hand(saThreeOfKind ));
             Assert.AreEqual(HandCategories.THREE_OF_KIND, ehr.category);
 
             // two pairs
             string[] saTwoPair = {"JH", "JS", "3C", "3S", "2H"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saTwoPair ));
+            ehr = evaluateHand.Evaluate(new Hand(saTwoPair ));
             Assert.AreEqual(HandCategories.TWO_OF_KIND_2X, ehr.category);
 
             // 2 of kind
             string[] saPair = {"10S", "10H", "8S", "7H", "4C"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saPair));
+            ehr = evaluateHand.Evaluate(new Hand(saPair));
             Assert.AreEqual(HandCategories.TWO_OF_KIND, ehr.category);
 
             // sad hand (high card)
             string[] saHighCard = {"KD", "QD", "7S", "4S", "3H"};
-            ehr = HandEvaluator.EvalHandSinglePass(new Hand(saHighCard));
+            ehr = evaluateHand.Evaluate(new Hand(saHighCard));
             Assert.AreEqual(HandCategories.HIGH_CARD, ehr.category);
-
         }
     }
 }
