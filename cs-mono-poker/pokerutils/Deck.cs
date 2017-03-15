@@ -64,6 +64,9 @@ namespace pokerutils
 
         }
 
+        // TODO: we should really validate that a bad caller isn't returning cards to us that we never dealt
+        // TODO: that said, this entire class isn't part of the requirements / deliverables and is really just
+        // TODO: myoung messing around with the problem/domain
         private void returnCard(Card c)
         {
             if((_dealPosition + 1) == _numCardsInDeck)
@@ -97,7 +100,7 @@ namespace pokerutils
             if(numCards > (1 + _dealPosition))
                 throw new ArgumentOutOfRangeException(String.Format("Error: {0} cards requested, {1} exist in deck presently!", numCards, 1 + _dealPosition));
 
-            Hand hand = new Hand();
+            Hand hand = new Hand(numCards);
             for (int i = 0; i < numCards; ++i)
             {
                 hand.Add(dealCard());
@@ -124,7 +127,7 @@ namespace pokerutils
         public void NaiveShuffle()
         {
             // this is lame, is not in place (e.g. swaps) and involves a good deal of list traversal.  It also causes
-            // a new List<> to be created (not really expensive TBH) but is philosophically dirty.
+            // a new List<> to be created (not really expensive TBH) and is philosophically dirty.
             // there are better ways to do this.  that said, we're only ever shuffling 52 cards, not a large #
             // this was first approach, and is only here to show iteration on an idea.
 

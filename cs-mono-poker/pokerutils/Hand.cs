@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Newtonsoft.Json;
+
 
 namespace pokerutils
 {
@@ -9,20 +11,50 @@ namespace pokerutils
     // note: at this point the Hand class is really just an abstraction so we can swap container types
     public class Hand : List<Card>
     {
-        private Hand()
+        public Hand(int numCards) : base(numCards)
         {
         }
 
-        // default List<> for most .Net versions is capacity 0, then 4, then double on realloc.  Paying for 2x realloc
-        // and yielding 8 (with 3 wasted) PER HAND is silly.  We might still end up with wasted bytes depending on
-        // Mono vs .Net Core vs Windoze impl's, but at least this is being specific.
-        public Hand(int defaultHandSize = 5) : base(defaultHandSize)
+        // handy for tests
+        public Hand(string[] cardStringArray)
         {
+            foreach (string s in cardStringArray)
+                this.Add(new Card(s));
         }
+
+        public Hand(string jsonHand)
+        {
+            string[] cardStringArray = ParseJsonStringArray(jsonHand);
+            foreach (string s in cardStringArray)
+                this.Add(new Card(s));
+        }
+
+        private static string[] ParseJsonStringArray(string jsonStringArray)
+        {
+            // TODO: brainstorm additional bad input we should be handling
+
+            if(String.IsNullOrEmpty(jsonStringArray))
+                throw new ArgumentNullException("jsonStringArray", "Error: null || empty input string");
+
+            string[] retStringArray;
+
+            try
+            {
+                retStringArray = JsonConvert.DeserializeObject<string[]>(jsonStringArray);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(String.Format("Error Parsing Input: {0}", jsonStringArray));
+                Console.WriteLine(e.Message);
+                throw;
+            }
+
+            return retStringArray;
+        }
+
 
         // lazy init
         private string _displayString;
-
         public override string ToString()
         {
             //
@@ -30,7 +62,7 @@ namespace pokerutils
             // the "+ 4" allows for 4 tens worst case without realloc.  really this is OCD as the default
             // buffer size is much larger, but this a demonstration of ability to think/code right?  {smile}
             //
-            // Were the buffer sizes larger it would matter :)
+            // Were the buffer sizes larger it (w||c)ould matter...
             //
             if (String.IsNullOrEmpty(_displayString))
             {

@@ -126,10 +126,10 @@ namespace pokerutils
             _suitInfo = _dictPrettySuit[suit];
             _rankInfo = _dictPrettyRank[rank];
 
-            // BOO - Mono seems to have some issues with Unicode 6.0
+            // BOO - Mono seems to have some issues with Unicode 6.0, dumping the actual char works
             // TODO: would be cool to have unicode cards for display purposes.
-            // int unicodeCardValue = _suitInfo.UnicodeCardSuitBase + _rankInfo.UnicodeCardRankSuffix;
-            // _cardUnicodeDisplay = Convert.ToChar(unicodeCardValue); // TODO: this throws exception at runtime, char out of bounds
+            uint unicodeCardValue = _suitInfo.UnicodeCardSuitBase | _rankInfo.UnicodeCardRankSuffix;
+             _cardUnicodeDisplay = (char)unicodeCardValue; // TODO: this throws exception at runtime, char out of bounds
 
         }
 
@@ -189,7 +189,7 @@ namespace pokerutils
         //
         private struct SuitInfo
         {
-            public SuitInfo(string display, char unicodeDarkSuit, char unicodeWhiteSuit, int unicodeCardSuiteBase)
+            public SuitInfo(string display, char unicodeDarkSuit, char unicodeWhiteSuit, uint unicodeCardSuiteBase)
             {
                 this.Display             = display;
                 this.UnicodeDarkSuit     = unicodeDarkSuit;
@@ -200,7 +200,7 @@ namespace pokerutils
             public string Display;
             public char UnicodeDarkSuit;
             public char UnicodeWhiteSuit;
-            public int UnicodeCardSuitBase;
+            public uint UnicodeCardSuitBase;
         };
 
         private static readonly Dictionary<Suits, SuitInfo> _dictPrettySuit = new Dictionary<Suits, SuitInfo>()
@@ -213,14 +213,14 @@ namespace pokerutils
 
         private struct RankInfo
         {
-            public RankInfo(string display, int unicodeCardRankSuffix)
+            public RankInfo(string display, uint unicodeCardRankSuffix)
             {
                 this.Display = display;
                 this.UnicodeCardRankSuffix = unicodeCardRankSuffix;
             }
 
             public string Display;
-            public int UnicodeCardRankSuffix;
+            public uint UnicodeCardRankSuffix;
         };
 
         private static readonly Dictionary<Ranks, RankInfo> _dictPrettyRank = new Dictionary<Ranks, RankInfo>()

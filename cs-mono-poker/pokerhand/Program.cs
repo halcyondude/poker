@@ -15,13 +15,21 @@ namespace pokerhand
         public static void Main(string[] args)
         {
 
-            log("------------------------------------");
-            log("pokerhand - for all your poker needs");
-            log("------------------------------------");
+            log("--------------------");
+            log("welcome to pokerhand");
+            log("--------------------");
 
+
+
+
+
+        }
+
+        public static void Proto()
+        {
             TestClass tc = new TestClass();
             tc.TestMethod();
-            tc.TestCardClass();
+
 
             log("------------------------------------");
             log("testing dealing hands");
@@ -35,6 +43,10 @@ namespace pokerhand
 
             tc.PrototypeUnicode();
 
+            //
+            tc.TestJsonParse();
+
         }
+
     }
 }

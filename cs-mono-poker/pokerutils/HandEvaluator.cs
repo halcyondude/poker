@@ -55,38 +55,14 @@ namespace pokerutils
     };
 
     //
-    // there is a bit of duplication in this class, for $reasons
+    // there is a bit of duplication in this class, for $reasons (bulk/batch hand eval)
     //
     public class HandEvaluator
     {
-        public static bool IsFlush(Hand hand)
-        {
-            Suits s = hand[0].suit;
 
-            for (int i = 1; i < hand.Count; i++)
-            {
-                if (s != hand[i].suit)
-                    return false;
-            }
-
-            return true;
-        }
-
-        // note: this is for a 5 card hand
-        public static bool IsStraight(Hand hand, out Ranks rankHighCardOut)
-        {
-            // in-place sort by rank descending (highest first)
-            hand.Sort((x, y) => x.rank.CompareTo(y.rank));
-
-            // a straight is all 5 cards, monotonically increasing.  for example 3,4,5,6,7. delta(min, max) is always 4
-            rankHighCardOut = hand[0].rank;
-
-            int delta = hand[0].rank - hand[4].rank;
-            return 4 == delta;
-        }
 
         //
-        // note: heavy use of asserts as we're writing this in a hurry
+        // note: heavy use of asserts as this is being written in a hurry
         //
         public static EvalHandResult EvalHandSinglePass(Hand hand)
         {
@@ -147,7 +123,8 @@ namespace pokerutils
             {
                 ehr.category = HandCategories.FLUSH;
 
-                hand.Sort((x, y) => x.rank.CompareTo(y.rank));
+                // note: we want high to low...
+                hand.Sort((x, y) => y.rank.CompareTo(x.rank));
                 Debug.Assert(hand[0].rank == maxRank);
 
                 ehr.kickers = new Ranks[hand.Count];
@@ -168,9 +145,10 @@ namespace pokerutils
             // 2,1,1,1   := 1 pair, 3 kickers (4 ranks total)
             // 1,1,1,1,1 := high card.  sad.  (5 ranks total)
 
-            // key: count from histogram, value: ranks (sorted).  Effectively O(1) add/search.  Handy.
-            Dictionary<int, HashSet<Ranks>> countToSortedRanks = new Dictionary<int, HashSet<Ranks>>(5);
+            // key: count from histogram, value: List<ranks>.
+            Dictionary<int, List<Ranks>> countToSortedRanks = new Dictionary<int, List<Ranks>>(5);
 
+            // populate
             for (int i = 0; i < nRanks; i++)
             {
                 int countValue = rankHistogram[i];
@@ -180,14 +158,19 @@ namespace pokerutils
 
                 Ranks r = (Ranks) i;
 
-                // [] is "add or fetch" and is O(1)
-                bool wasAdded = countToSortedRanks[countValue].Add(r);
-
-                // TODO: remove
-                Debug.Assert(wasAdded);
+                if (!countToSortedRanks.ContainsKey(countValue))
+                {
+                    List<Ranks> hs = new List<Ranks>();
+                    hs.Add(r);
+                    countToSortedRanks.Add(countValue, hs);
+                }
+                else
+                {
+                    countToSortedRanks[countValue].Add(r);
+                }
             }
 
-
+            // use
             if (countToSortedRanks.ContainsKey(4)) // 4 of a kind
             {
                 // we should have a single kicker
@@ -195,17 +178,17 @@ namespace pokerutils
                 Debug.Assert(countToSortedRanks.Keys.Count == 2);
 
                 ehr.category = HandCategories.FOUR_OF_KIND;
-                ehr.rankHigh = countToSortedRanks[4].First();
+                ehr.rankHigh = countToSortedRanks[4][0];
                 ehr.kickers = new Ranks[1];
-                ehr.kickers[0] = countToSortedRanks[1].First();
+                ehr.kickers[0] = countToSortedRanks[1][0];
             }
             else if (countToSortedRanks.ContainsKey(3) && countToSortedRanks.ContainsKey(2))
             {
                 Debug.Assert(countToSortedRanks.Keys.Count == 2); // 2 ranks total
 
                 ehr.category = HandCategories.FULL_HOUSE;
-                ehr.rankHigh = countToSortedRanks[3].First();
-                ehr.rankLow = countToSortedRanks[2].First();
+                ehr.rankHigh = countToSortedRanks[3][0];
+                ehr.rankLow = countToSortedRanks[2][0];
             }
             else if (countToSortedRanks.ContainsKey(3) && countToSortedRanks.ContainsKey(1))
             {
@@ -214,33 +197,50 @@ namespace pokerutils
                 Debug.Assert(countToSortedRanks[1].Count == 2);   // 2 kickers
 
                 ehr.category = HandCategories.THREE_OF_KIND;
-                ehr.rankHigh = countToSortedRanks[3].First();
-                ehr.kickers = new Ranks[2];
+                ehr.rankHigh = countToSortedRanks[3][0];
+                ehr.kickers = countToSortedRanks[1].ToArray();
 
-                // it is sad that HashSet's don't have index properties, only enumerators
-                HashSet<Ranks> ranks = countToSortedRanks[1];
-                ehr.kickers[0] = ranks.First();
-                ehr.kickers[1] = ranks.Last();
+                // kickers need to be high > low, in this case there are only 2 kickers.
+                if(ehr.kickers[0] < ehr.kickers[1])
+                    Swap(ref ehr.kickers[0], ref ehr.kickers[1]);
 
                 Debug.Assert(ehr.kickers[0] > ehr.kickers[1]);
             }
             else if (countToSortedRanks.ContainsKey(2) && countToSortedRanks.ContainsKey(1))
             {
-                Debug.Assert(countToSortedRanks.Keys.Count == 3); // 3 ranks total
-                Debug.Assert(countToSortedRanks[2].Count == 2);   // 2 pair
-                Debug.Assert(countToSortedRanks[1].Count == 1);   // 1 kicker
+                // this is one of 2 cases:
+                // 2,2,1     := 2 pair, 1 kickers (3 ranks total)
+                if ((countToSortedRanks[2].Count == 2) && (countToSortedRanks[1].Count == 1))
+                {
+                    ehr.category = HandCategories.TWO_OF_KIND_2X;
+                    ehr.rankHigh = countToSortedRanks[2][0];
+                    ehr.rankLow = countToSortedRanks[2][1];
 
-                ehr.category = HandCategories.TWO_OF_KIND_2X;
-                // TODO: complete after validate sort orders and such
-            }
-            else if (countToSortedRanks.ContainsKey(2) && countToSortedRanks.ContainsKey(1))
-            {
-                Debug.Assert(countToSortedRanks.Keys.Count == 4); // 4 ranks total
-                Debug.Assert(countToSortedRanks[2].Count == 1);   // 1 pair
-                Debug.Assert(countToSortedRanks[1].Count == 3);   // 3 kicker
+                    // on average we'll need to swap half the time. :)
+                    if(ehr.rankLow > ehr.rankHigh)
+                        Swap(ref ehr.rankLow, ref ehr.rankHigh);
 
-                ehr.category = HandCategories.TWO_OF_KIND;
-                // TODO: complete
+                    // only 1 kicker
+                    ehr.kickers = countToSortedRanks[1].ToArray();
+
+                }
+                // 2,1,1,1   := 1 pair, 3 kickers (4 ranks total)
+                else if ((countToSortedRanks[2].Count == 1) && (countToSortedRanks[1].Count == 3))
+                {
+                    ehr.category = HandCategories.TWO_OF_KIND;
+                    ehr.rankHigh = countToSortedRanks[2][0];
+
+                    // note: this gives us high-to-low
+                    countToSortedRanks[1].Sort((x, y) => y.CompareTo(x));
+                    ehr.kickers = countToSortedRanks[1].ToArray();
+                }
+                else
+                {
+                    // ruh-roh, we're not understanding something basic here...or not covering a use case correctly.  bail.
+                    // https://msdn.microsoft.com/en-us/library/system.invalidoperationexception(v=vs.110).aspx
+                    Debug.Assert(false);
+                    throw new InvalidOperationException("Hand evaluation logic has an internal error!");
+                }
             }
             else if (countToSortedRanks.ContainsKey(1))           // high card (sad hand)
             {
@@ -248,16 +248,65 @@ namespace pokerutils
                 Debug.Assert(countToSortedRanks[1].Count == 5);   // all ranks are single card
 
                 ehr.category = HandCategories.HIGH_CARD;
-                // TODO: complete
+                countToSortedRanks[1].Sort((x, y) => y.CompareTo(x));
+                ehr.kickers = countToSortedRanks[1].ToArray();
             }
             else
             {
                 // should never get here
                 Debug.Assert(false);
+                throw new InvalidOperationException("Hand evaluation logic has an internal error!");
             }
 
             return ehr;
         }
 
+
+        static void Swap(ref Ranks x, ref Ranks y)
+        {
+#if true
+            Ranks tempswap = x;
+            x = y;
+            y = tempswap;
+#else
+            // TODO: validate that in C# this is actually better (vs. wonky boxing etc)
+            x ^= y;
+            y ^= x;
+            x ^= y;
+#endif
+        }
+
+    }
+
+    //
+    // holding area for static helper funcs that don't have a home yet
+    //
+    public class HandEvaluatorMiscUtils
+    {
+        public static bool IsFlush(Hand hand)
+        {
+            Suits s = hand[0].suit;
+
+            for (int i = 1; i < hand.Count; i++)
+            {
+                if (s != hand[i].suit)
+                    return false;
+            }
+
+            return true;
+        }
+
+        // note: this is for a 5 card hand
+        public static bool IsStraight(Hand hand, out Ranks rankHighCardOut)
+        {
+            // in-place sort by rank descending (highest first)
+            hand.Sort((x, y) => x.rank.CompareTo(y.rank));
+
+            // a straight is all 5 cards, monotonically increasing.  for example 3,4,5,6,7. delta(min, max) is always 4
+            rankHighCardOut = hand[0].rank;
+
+            int delta = hand[0].rank - hand[4].rank;
+            return 4 == delta;
+        }
     }
 }
