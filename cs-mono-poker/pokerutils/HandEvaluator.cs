@@ -25,7 +25,7 @@ namespace pokerutils
     // holding area for static helper funcs that don't have a home yet and/or might never see the light of day
     //
     //
-    public class HandEvaluatorUtils
+    public class HandEvaluator
     {
 
         //
@@ -277,33 +277,6 @@ namespace pokerutils
 
             return ultimateWinners;
 
-        }
-
-
-        public static bool IsFlush(Hand hand)
-        {
-            Suits s = hand[0].suit;
-
-            for (int i = 1; i < hand.Count; i++)
-            {
-                if (s != hand[i].suit)
-                    return false;
-            }
-
-            return true;
-        }
-
-        // note: this is for a 5 card hand
-        public static bool IsStraight(Hand hand, out Ranks rankHighCardOut)
-        {
-            // in-place sort by rank descending (highest first)
-            hand.Sort((x, y) => x.rank.CompareTo(y.rank));
-
-            // a straight is all 5 cards, monotonically increasing.  for example 3,4,5,6,7. delta(min, max) is always 4
-            rankHighCardOut = hand[0].rank;
-
-            int delta = hand[0].rank - hand[4].rank;
-            return 4 == delta;
         }
     }
 }

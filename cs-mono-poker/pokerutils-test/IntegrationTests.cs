@@ -34,7 +34,7 @@ namespace pokerutils_test
             Console.WriteLine("output: {0}", expectedOutput);
 
             Hand inputHand = new Hand(sevenCardHand);
-            List<Hand> winners = HandEvaluatorUtils.PickWinningHands(sevenCardHand);
+            List<Hand> winners = HandEvaluator.PickWinningHands(sevenCardHand);
 
         }
 
