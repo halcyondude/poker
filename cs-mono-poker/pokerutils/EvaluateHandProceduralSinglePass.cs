@@ -47,7 +47,19 @@ namespace pokerutils
                 rankHistogram[(int) r]++;
             }
 
-            bool isStraight = (4 == (maxRank - minRank));
+            // if the ranks are all unique AND the delta in rank is 4, it's a straight (for a 5 card hand)
+            HashSet<Ranks> duplicateDetect = new HashSet<Ranks>();
+            bool bUnique = true;
+            foreach (Card c in hand)
+            {
+                if (!duplicateDetect.Add(c.rank))
+                {
+                    bUnique = false;
+                    break;
+                }
+            }
+
+            bool isStraight = (bUnique && (4 == (maxRank - minRank)));
 
             // at this point we know if we have a straight, flush, and a histogram of cards w/ ranks.  Woot.
             EvalHandResult ehr = new EvalHandResult();
