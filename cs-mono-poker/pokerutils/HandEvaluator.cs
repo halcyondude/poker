@@ -45,7 +45,7 @@ namespace pokerutils
 
             // TODO: clean this up...too many silly copies...
             List<Hand> winningHands = new List<Hand>(winners.Count);
-            foreach(EvalHandResult ehr in winners)
+            foreach (EvalHandResult ehr in winners)
                 winningHands.Add(ehr.hand);
 
             return winningHands;
@@ -71,7 +71,7 @@ namespace pokerutils
 
 
             Console.WriteLine(Environment.NewLine + "Evaluating the following hands...");
-            foreach(Hand h in handsToScore)
+            foreach (Hand h in handsToScore)
                 Console.WriteLine("{0}", h);
             Console.WriteLine("");
 
@@ -80,7 +80,8 @@ namespace pokerutils
             //
             // note: SortedDictionary has faster insertion, and the same (log n) retrevial as SortedList, but uses a wee bit more memory.
             //       as these set sizes are modest, this will do.
-            SortedDictionary<int, List<EvalHandResult>> resultsByCategory = new SortedDictionary<int, List<EvalHandResult>>();
+            SortedDictionary<int, List<EvalHandResult>> resultsByCategory =
+                new SortedDictionary<int, List<EvalHandResult>>();
 
             foreach (Hand hand in handsToScore)
             {
@@ -117,17 +118,78 @@ namespace pokerutils
             }
 
             Console.WriteLine("Winning Hand(s)");
-            foreach(EvalHandResult ehr in winners)
+            foreach (EvalHandResult ehr in winners)
                 Console.WriteLine("\t{0}", ehr);
 
             return winners;
 
         }
 
+        //
+        // PickWinnersByCategory() - assumes all items are of the same category
+        //
+        private static List<EvalHandResult> PickWinnersByCategory(List<EvalHandResult> finalists,
+            HandCategories category)
+        {
+            // TODO: validate params
+            // TODO: brute forcing to get this working rapidly.  This is ripe for optimization.  For now utilizing multi-pass
+            List<EvalHandResult> ultimateWinners = new List<EvalHandResult>();
+
+            switch (category)
+            {
+                // high card is all that matters.
+                case HandCategories.STRAIGHT_FLUSH:
+                case HandCategories.STRAIGHT:
+                    ultimateWinners = FetchBestRankHigh(finalists);
+                    break;
+
+                //  high (3x), then low (2x)
+                case HandCategories.FULL_HOUSE:
+                    ultimateWinners = FetchBestRankHighThenRankLowIfNeeded(finalists);
+                    break;
+
+                // high pair, low pair, kicker
+                case HandCategories.TWO_OF_KIND_2X:
+                    ultimateWinners = FetchBestRankHighThenRankLowIfNeeded(finalists);
+                    if (ultimateWinners.Count > 1)
+                        ultimateWinners = IdentifyWinnersFromKickers(ultimateWinners);
+                    break;
+
+                // rank of kind, then kickers
+                case HandCategories.FOUR_OF_KIND:
+                case HandCategories.THREE_OF_KIND:
+                case HandCategories.TWO_OF_KIND:
+                    ultimateWinners = FetchBestRankHigh(finalists);
+                    if (ultimateWinners.Count > 1)
+                        ultimateWinners = IdentifyWinnersFromKickers(ultimateWinners);
+                    break;
+
+
+                // kickers only
+                case HandCategories.FLUSH:
+                case HandCategories.HIGH_CARD:
+                    ultimateWinners = IdentifyWinnersFromKickers(ultimateWinners);
+                    break;
+
+                // unsupported
+                case HandCategories.FIVE_OF_KIND:
+                    throw new NotImplementedException("Error: 5 of a kind is not yet implemented");
+                    break;
+
+                default:
+                    throw new InvalidEnumArgumentException("Error: new type of hand is not yet supported");
+                    break;
+            }
+
+            return ultimateWinners;
+
+        }
+
+
         // This will plow thru input, returning the list of all results with highest rank for **rankHigh** (e.g. ties)
         private static List<EvalHandResult> FetchBestRankHigh(List<EvalHandResult> input)
         {
-            if(0 == input.Count)
+            if (0 == input.Count)
                 throw new ArgumentOutOfRangeException("FetchBestRankHigh() - called with an empty input list");
 
             // this would be silly but covering case anyway.
@@ -142,7 +204,7 @@ namespace pokerutils
             {
                 EvalHandResult ehr = input[i];
 
-                if(ehr.rankHigh < highestRankObserved)
+                if (ehr.rankHigh < highestRankObserved)
                     continue;
 
                 if (ehr.rankHigh == highestRankObserved)
@@ -166,7 +228,7 @@ namespace pokerutils
         // note: if C# had a preprocessor...would have a combined method.  There are some reflection gimmicks that could be used here...but yuck.
         private static List<EvalHandResult> FetchBestRankLow(List<EvalHandResult> input)
         {
-            if(0 == input.Count)
+            if (0 == input.Count)
                 throw new ArgumentOutOfRangeException("FetchBestRankLow() - called with an empty input list");
 
             // this would be silly but covering case anyway.
@@ -212,70 +274,81 @@ namespace pokerutils
         }
 
         //
-        // note: assumes all items are of the same category
+        // ***** kickers *****
         //
-        private static List<EvalHandResult> PickWinnersByCategory(List<EvalHandResult> finalists,
-            HandCategories category)
+
+
+        private static Ranks FindMax(Ranks[] ra, ref List<int> indicesWhereFound)
         {
-            // TODO: validate params
-            // TODO: brute forcing to get this working rapidly.  This is ripe for optimization.  For now utilizing multi-pass
+            if (ra.Length == 0)
+                throw new InvalidOperationException("MaxRank() - empty list");
 
+            // 0 is Ranks.TWO)
+            Ranks rMax = 0;
 
-            List<EvalHandResult> ultimateWinners = new List<EvalHandResult>();
-
-            switch (category)
+            for (int i = 0; i < ra.Length; i++)
             {
-                // high card is all that matters.
-                case HandCategories.STRAIGHT_FLUSH:
-                case HandCategories.STRAIGHT:
-                    ultimateWinners = FetchBestRankHigh(finalists);
-                    break;
+                if (ra[i] == rMax)
+                {
+                    indicesWhereFound.Add(i);
+                    continue;
+                }
 
-                //  high (3x), then low (2x)
-                case HandCategories.FULL_HOUSE:
-                    ultimateWinners = FetchBestRankHighThenRankLowIfNeeded(finalists);
-                    break;
+                if (ra[i] > rMax)
+                {
+                    // new max found
+                    rMax = ra[i];
+                    indicesWhereFound.Clear();
+                    indicesWhereFound.Add(i);
+                }
+            }
+            return rMax;
+        }
 
-                // high pair, low pair, kicker
-                case HandCategories.TWO_OF_KIND_2X:
-                    ultimateWinners = FetchBestRankHighThenRankLowIfNeeded(finalists);
-                    if (ultimateWinners.Count > 1)
-                    {
-                        // highly unlikely tie.  time for kickers.
-                        // TODO:
+        private static List<Ranks> BuildKickerOrdinalList(List<EvalHandResult> hrFinalists, int ordinal)
+        {
+            List<Ranks> ret = new List<Ranks>();
+            for (int i = 0; i < hrFinalists.Count; i++)
+                ret.Add(hrFinalists[i].kickers[ordinal]);
 
-                    }
-                    break;
+            return ret;
+        }
 
-                // rank of kind, then kickers
-                case HandCategories.FOUR_OF_KIND:
-                case HandCategories.THREE_OF_KIND:
-                case HandCategories.TWO_OF_KIND:
-                    ultimateWinners = FetchBestRankHigh(finalists);
-                    if (ultimateWinners.Count > 1)
-                    {
-                        // TODO kickers
-                    }
-                    break;
+        //
+        // Given a list of hand results (that only differ by kicker lists), identify winner(s)
+        //
+        private static List<EvalHandResult> IdentifyWinnersFromKickers(List<EvalHandResult> kickerFinalists)
+        {
+            // TODO: done > ideal.  since lists are the same length, a multi-dimensional array walk would make sense.
+            // TODO: since it's 1am, that's not going to happen now.  These lists are on average size 2-3
+            // TODO: there is also probably something wildly simpler (recursion) and more elegant.  revisit this.
 
+            // all kicker arrays have the same length, at most could have 5 per list (nearly tie sad hands)
+            // kickers lists are sorted high -> low
+            int nItemsPerKicker = kickerFinalists[0].kickers.Length;
+            List<EvalHandResult> culled = kickerFinalists;
 
-                // kickers only
-                case HandCategories.FLUSH:
-                case HandCategories.HIGH_CARD:
-                    // TODO: kickers
-                    break;
+            // for each list ordinal position
+            for (int i = 0; i < nItemsPerKicker; i++)
+            {
+                List<Ranks> ordinalSet = BuildKickerOrdinalList(kickerFinalists, i);
 
-                // unsupported
-                case HandCategories.FIVE_OF_KIND:
-                    throw new NotImplementedException("Error: 5 of a kind is not yet implemented");
-                    break;
+                // get biggest value(s)
+                List<int> indices = new List<int>();
+                Ranks rMax = FindMax(ordinalSet.ToArray(), ref indices);
 
-                default:
-                    throw new InvalidEnumArgumentException("Error: new type of hand is not yet supported");
-                    break;
+                // get just the winners for this round
+                culled = new List<EvalHandResult>(indices.Count);
+                foreach (int resultIndex in indices)
+                    culled.Add(kickerFinalists[resultIndex]);
+
+                // if we have a singular max...we're done.
+                if (culled.Count == 1)
+                    return culled;
             }
 
-            return ultimateWinners;
+            // we have (incredibly) gotten a tie poker hand, WITH kickers.
+            return culled;
 
         }
     }
