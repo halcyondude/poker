@@ -26,7 +26,7 @@ namespace pokerutils
         // The core recursive algorithm is inspired by Pascal's triangle, and will generate the following
         // number of combinations:
         //
-        // (n,k) --> n! / (k! * (n-k)!)
+        // (n,k) --> n! / (k! * (n   -k)!)
         //
         // For example, if we're dealing 8 cards (n), and we want to generate all unique 5 card (k) hands...
         //
