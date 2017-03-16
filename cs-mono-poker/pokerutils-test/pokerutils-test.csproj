@@ -45,6 +45,7 @@
     <Compile Include="CardTests.cs" />
     <Compile Include="HandEvaluatorTests.cs" />
     <Compile Include="HandFactoryTests.cs" />
+    <Compile Include="IntegrationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

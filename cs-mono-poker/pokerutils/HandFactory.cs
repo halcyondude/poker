@@ -10,7 +10,7 @@ namespace pokerutils
     public class HandFactory
     {
 
-        public static List<Hand> CreateAllPossibleHands(string jsonAllCards, int nCardsInEachHand)
+        public static List<Hand> CreateAllPossibleHands(string jsonAllCards, int nCardsInEachHand = 5)
         {
             Hand hand = new Hand(jsonAllCards);
             return CreateAllPossibleHands(hand, nCardsInEachHand);
@@ -37,7 +37,7 @@ namespace pokerutils
         // (26,5) -->    65,780
         // (52,5) --> 2,598,960 :)
         //
-        public static List<Hand> CreateAllPossibleHands(Hand hand, int nCardsInEachHand)
+        public static List<Hand> CreateAllPossibleHands(Hand hand, int nCardsInEachHand = 5)
         {
             if(nCardsInEachHand > hand.Count)
                 throw new ArgumentOutOfRangeException("hand", String.Format("Error: nCardsInHand is greater than the total number of cards"));

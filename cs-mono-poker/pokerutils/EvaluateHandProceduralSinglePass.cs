@@ -53,7 +53,6 @@ namespace pokerutils
             EvalHandResult ehr = new EvalHandResult();
             ehr.hand = hand;
 
-            // TODO: if we were plowing through thousands+ of hands looking for winners, this is fast to compute, and would fast-cull losers
             if (isStraight && isFlush)
             {
                 ehr.category = HandCategories.STRAIGHT_FLUSH;

@@ -127,7 +127,7 @@ namespace pokerutils_test
         //
         private void TestPickWinner(IEvaluateHand evaluator, List<Hand> handsToEvaluate)
         {
-            List<EvalHandResult> winners = HandEvaluatorMiscUtils.PickWinnersBruteForce(evaluator, handsToEvaluate);
+            List<EvalHandResult> winners = HandEvaluatorUtils.PickWinnersBruteForce(evaluator, handsToEvaluate);
         }
     }
 }
