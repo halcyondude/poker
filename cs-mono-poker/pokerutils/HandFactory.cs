@@ -44,10 +44,11 @@ namespace pokerutils
 
             // TODO: put some guards in place for nCardsInEachHand.  For now trust.
 
+            Console.WriteLine("Generating all possible {0} card hands of {1}", nCardsInEachHand, hand);
             // reasonable default for most poker variants
             List<Hand> allPossibleHands = new List<Hand>(64);
 
-            Console.WriteLine("DEBUG: Calling AlgoNChooseK({0}, {1})", hand, nCardsInEachHand);
+            //Console.WriteLine("DEBUG: Calling AlgoNChooseK({0}, {1})", hand, nCardsInEachHand);
 
             // generate all cards
             Card[] cardArray = hand.ToArray();

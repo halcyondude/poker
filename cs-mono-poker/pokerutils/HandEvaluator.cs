@@ -33,9 +33,9 @@ namespace pokerutils
         //
         public static List<Hand> PickWinningHands(string jsonInputHand)
         {
-            Console.WriteLine("------------------");
-            Console.WriteLine("PickWinningHands()");
-            Console.WriteLine("------------------");
+            //Console.WriteLine("------------------");
+            //Console.WriteLine("PickWinningHands()");
+            //Console.WriteLine("------------------");
 
             IEvaluateHand evaluator = new EvaluateHandProceduralSinglePass();
 
@@ -70,7 +70,7 @@ namespace pokerutils
                 throw new ArgumentNullException(nameof(handsToScore));
 
 
-            Console.WriteLine(Environment.NewLine + "Evaluating the following hands...");
+            Console.WriteLine(Environment.NewLine + "Evaluating the following hands...looking for a winner!");
             foreach (Hand h in handsToScore)
                 Console.WriteLine("{0}", h);
             Console.WriteLine("");
@@ -117,9 +117,9 @@ namespace pokerutils
                 winners = PickWinnersByCategory(winners, (HandCategories) winningCategory);
             }
 
-            Console.WriteLine("Winning Hand(s)");
+            Console.WriteLine("\nWinning Hand(s)");
             foreach (EvalHandResult ehr in winners)
-                Console.WriteLine("\t{0}", ehr);
+                Console.WriteLine("{0}", ehr);
 
             return winners;
 

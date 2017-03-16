@@ -89,7 +89,7 @@ namespace pokerutils
                     break;
 
                 case HandCategories.HIGH_CARD:
-                    sb.Append("High Card (sad hand).  Just for kickers: ");
+                    sb.Append("High Card, Kickers: ");
                     foreach (Ranks r in kickers)
                         sb.AppendFormat("{0} ", pretty(r));
                     break;

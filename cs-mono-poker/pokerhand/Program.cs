@@ -18,8 +18,18 @@ namespace pokerhand
             log("--------------------");
             log("welcome to pokerhand");
             log("--------------------");
+            string sevenCardHand = "[\"3H\", \"7S\", \"3S\", \"QD\", \"AH\", \"3D\", \"4S\"]";
+            string expectedOutput = "[\"3H\", \"3S\", \"3D\", \"AH\", \"QD\"]";
 
+            Console.WriteLine("input : {0}", sevenCardHand);
+            Console.WriteLine("output: {0}", expectedOutput);
 
+            Hand inputHand = new Hand(sevenCardHand);
+            Hand expectedHand = new Hand(expectedOutput);
+
+            List<Hand> winners = HandEvaluator.PickWinningHands(sevenCardHand);
+
+            Console.WriteLine("Expected Hand:\n{0}", expectedHand);
 
 
 
